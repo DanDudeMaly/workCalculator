@@ -21,8 +21,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var eightButton: UIButton!
     @IBOutlet weak var nineButton: UIButton!
     
-    var operand:Double = 0.0
-    var secondOperand:Double = 0.0
+    var operand:String = ""
+    var secondOperand:String = ""
     var symbolQueued:String = ""
     var lastPressed:String = ""
     
@@ -72,10 +72,10 @@ class ViewController: UIViewController {
    
     @IBAction func negativePressed(_ sender: Any) {
         if symbolQueued == "" {
-            operand = 0 - operand
+            operand = String(0 - Double(operand)!)
             calculatorDisplayLabel.text = String(operand)
         } else{
-            secondOperand = 0 - secondOperand
+            secondOperand = String(0 - Double(secondOperand)!)
             calculatorDisplayLabel.text = String(operand)
         }
     }
@@ -85,8 +85,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func clearPressed(_ sender: Any) {
-        operand = 0
-        secondOperand = 0
+        operand = ""
+        secondOperand = ""
         symbolQueued = ""
         calculatorDisplayLabel.text = "0"
         symbolsSetRed()
@@ -94,38 +94,39 @@ class ViewController: UIViewController {
     
     @IBAction func percentPressed(_ sender: Any) {
         switch symbolQueued {
+            
         case "+":
-            operand = operand + (operand * (secondOperand / 100))
-            calculatorDisplayLabel.text = String(operand)
-            secondOperand = 0
+            operand = String(Double(operand)! + (Double(secondOperand)! / 100))
+            roundNum(operand: operand)
+            secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         case "-":
-            operand = operand - (operand * (secondOperand / 100))
-            calculatorDisplayLabel.text = String(operand)
-            secondOperand = 0
+            operand = String(Double(operand)! - (Double(secondOperand)! / 100))
+            roundNum(operand: operand)
+            secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         case "/":
-            operand = operand * (operand * (secondOperand / 100))
-            calculatorDisplayLabel.text = String(operand)
-            secondOperand = 0
+            operand = String(Double(operand)! / (Double(secondOperand)! / 100))
+            roundNum(operand: operand)
+            secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         case "x":
-            operand = operand / (operand * (secondOperand / 100))
-            calculatorDisplayLabel.text = String(operand)
-            secondOperand = 0
+            operand = String(Double(operand)! *  (Double(secondOperand)! / 100))
+            roundNum(operand: operand)
+            secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         default:
-            operand = operand / 100
-            calculatorDisplayLabel.text = String(operand)
-            secondOperand = 0
+            operand = String(Double(operand)! / 100)
+            roundNum(operand: operand)
+            secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
         }
@@ -174,64 +175,45 @@ class ViewController: UIViewController {
     }
     
     func checkOperand(checkButton: UIButton, symbolSet: String){
-        if operand != 0 {
+        if operand != "" {
             symbolQueued = symbolSet
             checkButton.backgroundColor = UIColor.purple
         }
         else{
             symbolsSetRed()
         }
-        operand = Double(String(format: "%.2f", operand))!
-        if operand.truncatingRemainder(dividingBy: 1.0) == 0 {
-            calculatorDisplayLabel.text = String(format: "%.0f", operand)
-        }else{
-            calculatorDisplayLabel.text = String(operand)
-        }
+        truncateNum(operand: operand)
+        calculatorDisplayLabel.text = String(operand)
     }
     
     func doOperations(symbolSet: String){
         switch symbolQueued {
         case "+":
-            operand = operand + secondOperand
-            if operand.truncatingRemainder(dividingBy: 1.0) == 0 {
-                calculatorDisplayLabel.text = String(format: "%.0f", operand)
-            }else{
-                calculatorDisplayLabel.text = String(operand)
-            }
-            secondOperand = 0
+            operand = String(Double(operand)! + Double(secondOperand)!)
+            truncateNum(operand: operand)
+            secondOperand = ""
             symbolQueued = symbolSet
             symbolsSetRed()
             break
         case "-":
-            operand = operand - secondOperand
-            if operand.truncatingRemainder(dividingBy: 1.0) == 0 {
-                calculatorDisplayLabel.text = String(format: "%.0f", operand)
-            }else{
-                calculatorDisplayLabel.text = String(operand)
-            }
-            secondOperand = 0
+            operand = String(Double(operand)! - Double(secondOperand)!)
+            truncateNum(operand: operand)
+
+            secondOperand = ""
             symbolQueued = symbolSet
             symbolsSetRed()
             break
         case "/":
-            operand = operand / secondOperand
-            if operand.truncatingRemainder(dividingBy: 1.0) == 0 {
-                calculatorDisplayLabel.text = String(format: "%.0f", operand)
-            }else{
-                calculatorDisplayLabel.text = String(operand)
-            }
-            secondOperand = 0
+            operand = String(Double(operand)! / Double(secondOperand)!)
+            truncateNum(operand: operand)
+            secondOperand = ""
             symbolQueued = symbolSet
             symbolsSetRed()
             break
         case "x":
-            operand = operand * secondOperand
-            if operand.truncatingRemainder(dividingBy: 1.0) == 0 {
-                calculatorDisplayLabel.text = String(format: "%.0f", operand)
-            }else{
-                calculatorDisplayLabel.text = String(operand)
-            }
-            secondOperand = 0
+            operand = String(Double(operand)! * Double(secondOperand)!)
+            truncateNum(operand: operand)
+            secondOperand = ""
             symbolQueued = symbolSet
             symbolsSetRed()
             break
@@ -242,26 +224,40 @@ class ViewController: UIViewController {
     
     func numPressed(numberInput: String){
         
-        if symbolQueued != "" { //check if a symbol has been pressed
-            if (String(secondOperand).contains(".")){
-                secondOperand = Double(String(secondOperand) + numberInput)!
-                calculatorDisplayLabel.text = String(secondOperand)
-            }
-            secondOperand = Double(String(String(format: "%.0f", secondOperand)) + numberInput)! //as operand vars use Double this rounds to no decimal places then adds the value of the button pressed. i.e 0.0 + 8 goes to 8 instead of 0.08
-            if secondOperand.truncatingRemainder(dividingBy: 1.0) == 0 { //if second operand is able to divide by 1 and have no remainder, ie a whole number, then remove the decimal place from the Double and present. ie 48.0 becomes 48
-                calculatorDisplayLabel.text = String(format: "%.0f", secondOperand)
+        if symbolQueued != "" {
+            if secondOperand == ""{
+                secondOperand = numberInput
             }else{
-                calculatorDisplayLabel.text = String(secondOperand) //if the number is not a whole number, then display the decimal points
+                secondOperand.append(numberInput)
             }
-            
-        } else{
-            operand = Double(String(String(format: "%.0f", operand)) + numberInput)!
-            if operand.truncatingRemainder(dividingBy: 1.0) == 0 {
-                calculatorDisplayLabel.text = String(format: "%.0f", operand)
+            calculatorDisplayLabel.text = secondOperand
+        } else {
+            if operand == ""{
+                operand = numberInput
             }else{
-                calculatorDisplayLabel.text = String(operand)
+                operand.append(numberInput)
             }
-            
+            calculatorDisplayLabel.text = operand
+        }
+    }
+    
+    func roundNum(operand: String){
+        if Double(operand)!.truncatingRemainder(dividingBy: 1.0) == 0 {
+            let firstDecimal = operand.index(of: "." ) ?? operand.endIndex
+            let firstPart = operand[..<firstDecimal]
+            calculatorDisplayLabel.text = String(firstPart)
+        }else{
+            calculatorDisplayLabel.text = String(operand)
+        }
+    }
+    
+    func truncateNum(operand: String){
+        if Double(operand)!.truncatingRemainder(dividingBy: 1.0) == 0 {
+            let firstPart = String(format: "%.0f", operand)
+            calculatorDisplayLabel.text = String(firstPart)
+        }else{
+            let secondPart = String(format: "%.2f", operand)
+            calculatorDisplayLabel.text = String(secondPart)
         }
     }
     
