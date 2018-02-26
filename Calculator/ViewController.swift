@@ -47,6 +47,7 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     @IBAction func decimalPressed(_ sender: Any) {
+        numPressed(numberInput: ".")
         
     }
     @IBAction func addPressed(_ sender: Any) {
@@ -73,15 +74,22 @@ class ViewController: UIViewController {
     @IBAction func negativePressed(_ sender: Any) {
         if symbolQueued == "" {
             operand = String(0 - Double(operand)!)
-            calculatorDisplayLabel.text = String(operand)
+            if operand.count > 14{
+                operand = String(format: "%.12f", Double(operand)!)
+            }
+            truncateNum(operand: operand)
         } else{
             secondOperand = String(0 - Double(secondOperand)!)
-            calculatorDisplayLabel.text = String(operand)
+            if operand.count > 14{
+                operand = String(format: "%.12f", Double(secondOperand)!)
+            }
+            truncateNum(operand: secondOperand)
         }
     }
     @IBAction func equalPressed(_ sender: Any) {
         doOperations(symbolSet: "")
        checkOperand(checkButton: equalButton, symbolSet: "")
+        symbolsSetRed()
     }
     
     @IBAction func clearPressed(_ sender: Any) {
@@ -97,35 +105,50 @@ class ViewController: UIViewController {
             
         case "+":
             operand = String(Double(operand)! + (Double(secondOperand)! / 100))
-            roundNum(operand: operand)
+            if operand.count > 14{
+                operand = String(format: "%.12f", Double(operand)!)
+            }
+            truncateNum(operand: operand)
             secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         case "-":
             operand = String(Double(operand)! - (Double(secondOperand)! / 100))
-            roundNum(operand: operand)
+            if operand.count > 14{
+                operand = String(format: "%.12f", Double(operand)!)
+            }
+            truncateNum(operand: operand)
             secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         case "/":
             operand = String(Double(operand)! / (Double(secondOperand)! / 100))
-            roundNum(operand: operand)
+            if operand.count > 14{
+                operand = String(format: "%.12f", Double(operand)!)
+            }
+            truncateNum(operand: operand)
             secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         case "x":
             operand = String(Double(operand)! *  (Double(secondOperand)! / 100))
-            roundNum(operand: operand)
+            if operand.count > 14{
+                operand = String(format: "%.12f", Double(operand)!)
+            }
+            truncateNum(operand: operand)
             secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
             break
         default:
             operand = String(Double(operand)! / 100)
-            roundNum(operand: operand)
+            if operand.count > 14{
+                operand = String(format: "%.12f", Double(operand)!)
+            }
+            truncateNum(operand: operand)
             secondOperand = ""
             symbolQueued = ""
             symbolsSetRed()
@@ -182,9 +205,12 @@ class ViewController: UIViewController {
         else{
             symbolsSetRed()
         }
+        if operand.count > 14{
+            operand = String(format: "%.12f", Double(operand)!)
+        }
         truncateNum(operand: operand)
-        calculatorDisplayLabel.text = String(operand)
     }
+    
     
     func doOperations(symbolSet: String){
         switch symbolQueued {
@@ -240,24 +266,14 @@ class ViewController: UIViewController {
             calculatorDisplayLabel.text = operand
         }
     }
-    
-    func roundNum(operand: String){
-        if Double(operand)!.truncatingRemainder(dividingBy: 1.0) == 0 {
-            let firstDecimal = operand.index(of: "." ) ?? operand.endIndex
-            let firstPart = operand[..<firstDecimal]
-            calculatorDisplayLabel.text = String(firstPart)
-        }else{
-            calculatorDisplayLabel.text = String(operand)
-        }
-    }
+
     
     func truncateNum(operand: String){
         if Double(operand)!.truncatingRemainder(dividingBy: 1.0) == 0 {
             let firstPart = String(format: "%.0f", Double(operand)!)
             calculatorDisplayLabel.text = String(firstPart)
         }else{
-            let secondPart = String(format: "%.2f", Double(operand)!)
-            calculatorDisplayLabel.text = String(secondPart)
+            calculatorDisplayLabel.text = String(operand)
         }
     }
     
