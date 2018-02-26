@@ -253,10 +253,10 @@ class ViewController: UIViewController {
     
     func truncateNum(operand: String){
         if Double(operand)!.truncatingRemainder(dividingBy: 1.0) == 0 {
-            let firstPart = String(format: "%.0f", operand)
+            let firstPart = String(format: "%.0f", Double(operand)!)
             calculatorDisplayLabel.text = String(firstPart)
         }else{
-            let secondPart = String(format: "%.2f", operand)
+            let secondPart = String(format: "%.2f", Double(operand)!)
             calculatorDisplayLabel.text = String(secondPart)
         }
     }
